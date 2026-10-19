@@ -20,7 +20,7 @@ func MustLoad() Config {
 	}
 
 	env := os.Getenv("ENV")
-	if port == "" {
+	if env == "" {
 		panic("ENV is required")
 	}
 	return Config{
