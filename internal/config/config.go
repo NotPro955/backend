@@ -8,7 +8,7 @@ import (
 
 type Config struct {
 	Port string
-	//Env  string
+	Env  string
 }
 
 func MustLoad() Config {
@@ -19,7 +19,12 @@ func MustLoad() Config {
 		panic("PORT is required")
 	}
 
+	env := os.Getenv("ENV")
+	if port == "" {
+		panic("PORT is required")
+	}
 	return Config{
 		Port: port,
+		Env:  env,
 	}
 }
