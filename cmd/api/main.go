@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/NotPro955/backend/internal/config"
@@ -19,6 +21,13 @@ func main() {
 	}
 	fmt.Println("DataBase Connected")
 	fmt.Println("Starting the Backend Server")
+
+	logHandle := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		AddSource: true,
+		Level:     slog.LevelWarn,
+	})
+	logger := slog.New(logHandle)
+	slog.SetDefault(logger)
 
 	mux := http.NewServeMux()
 

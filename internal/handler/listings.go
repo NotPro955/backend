@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"log"
+	"log/slog"
 	"net/http"
 	"time"
 )
@@ -29,7 +30,9 @@ func NewListingHandler(db *sql.DB) *ListingHandler {
 }
 
 func (lh ListingHandler) List(w http.ResponseWriter, r *http.Request) {
-	rows, err := lh.db.Query(`SELECT title,id,description,price,city,created_at,status
+	ctx := r.Context()
+
+	rows, err := lh.db.QueryContext(ctx, `SELECT title,id,description,price,city,created_at,status
 		FROM listings
 		ORDER BY created_at
 		LIMIT 10`)
@@ -67,10 +70,11 @@ func (lh ListingHandler) List(w http.ResponseWriter, r *http.Request) {
 func (lh ListingHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	_, err := lh.db.Exec(`DELETE FROM listings WHERE id = $1`, id)
+	ctx := r.Context()
+	_, err := lh.db.ExecContext(ctx, `DELETE FROM listing WHERE id = $1`, id)
 
 	if err != nil {
-		log.Printf("delete: %v", err)
+		slog.Error("delete error", "id", id, "err", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
