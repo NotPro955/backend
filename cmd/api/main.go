@@ -1,23 +1,31 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
+
+	"github.com/NotPro955/backend/internal/config"
+	"github.com/NotPro955/backend/internal/db"
+	"github.com/NotPro955/backend/internal/handler"
 )
 
 func main() {
+	conf := config.MustLoad()
+	_, dberr := db.Connect(conf.Databaseurl)
+	if dberr != nil {
+		log.Fatalf("main db: %v", dberr)
+	}
+	fmt.Println("DataBase Connected")
+	fmt.Println("Starting the Backend Server")
+
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ok"}`))
-	})
+	mux.HandleFunc("GET /healthz", handler.Health)
 
 	srv := http.Server{
-		Addr:         ":" + os.Getenv("PORT"),
+		Addr:         ":" + conf.Port,
 		Handler:      mux,
 		ReadTimeout:  time.Second * 10,
 		WriteTimeout: time.Second * 30,
