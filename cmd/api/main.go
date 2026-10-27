@@ -11,6 +11,7 @@ import (
 	"github.com/NotPro955/backend/internal/config"
 	"github.com/NotPro955/backend/internal/db"
 	"github.com/NotPro955/backend/internal/handler"
+	"github.com/NotPro955/backend/internal/middleware"
 )
 
 func main() {
@@ -36,10 +37,13 @@ func main() {
 	mux.HandleFunc("GET /healthz", handler.Health)
 	mux.HandleFunc("GET /listings", lh.List)
 	mux.HandleFunc("DELETE /listings/{id}", lh.Delete)
+	mux.HandleFunc("POST /listings", lh.Create)
+
+	handler := middleware.RequestId(mux)
 
 	srv := http.Server{
 		Addr:         ":" + conf.Port,
-		Handler:      mux,
+		Handler:      handler,
 		ReadTimeout:  time.Second * 10,
 		WriteTimeout: time.Second * 30,
 		IdleTimeout:  time.Second * 60,
